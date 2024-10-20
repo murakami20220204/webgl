@@ -10,6 +10,10 @@ var game;
 window.addEventListener ("error", onError);
 window.addEventListener ("load", onLoad);
 
+function createByteArrayFromBase64 (source) {
+	return Uint8Array.from (window.atob (source), function (value) { return value.charCodeAt (0); }).buffer;
+}
+
 function onAnimationFrame (timestamp) {
 	game.deltaSeconds = timestamp - game.deltaSeconds;
 	resize ();
@@ -19,7 +23,7 @@ function onAnimationFrame (timestamp) {
 }
 
 function onError (event) {
-	window.alert (event);
+	window.alert (`${event.filename} (${event.lineno}:${event.colno}) ${event.message}`);
 }
 
 function onLoad (event) {
@@ -29,7 +33,7 @@ function onLoad (event) {
 	window.requestAnimationFrame (onAnimationFrame);
 }
 
-function resize (event) {
+function resize () {
 	const width = canvas.clientWidth;
 	const height = canvas.clientHeight;
 

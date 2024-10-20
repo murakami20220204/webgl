@@ -16,6 +16,14 @@ var Scalar = {
 	},
 	convertToRadians: function (degrees) {
 		return (degrees * this.TO_RADIANS);
+	},
+	isPowerOfTwo: function (value) {
+		if (value > 0) while (value) {
+			if (value == 1) return true;
+			else value = value >> 1;
+		}
+
+		return false;
 	}
 };
 
