@@ -4,13 +4,16 @@ GLSL で記述されたシェーダー ソース。
 */
 
 const GLSL_SPRITE_VERTEX = `
+	uniform mat4 Projection;
 	uniform mat4 World;
 	attribute vec4 Vertex;
 	attribute vec2 Texcoord;
 	varying mediump vec2 TexcoordVarying;
 
 	void main() {
-		gl_Position = World * Vertex;
+		gl_Position = Vertex;
+		gl_Position = World * gl_Position;
+		gl_Position = Projection * gl_Position;
 		TexcoordVarying = Texcoord;
 	}
 `;

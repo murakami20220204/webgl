@@ -27,9 +27,22 @@ Game.prototype.draw = function () {
 }
 
 Game.prototype.update = function () {
-	m0 = Matrix.create ();
-	m1 = Matrix.create ();
+	const aspectRatio = this.surfaceWidth / this.surfaceHeight;
+	let width;
+	let height;
+	let m0 = Matrix.create ();
+	let m1 = Matrix.create ();
 	Matrix.translation (m1, 0.0, 0.0, 0.0);
-	Matrix.scaling (m0, 0.5, 0.5, 1.0);
+	Matrix.scaling (m0, 1.0, 1.0, 1.0);
 	Matrix.multiply (this.spriteRenderer.world, m0, m1);
+
+	if (aspectRatio > 1.0) {
+		width = 2.0 * aspectRatio;
+		height = 2.0;
+	} else {
+		width = 2.0;
+		height = 2.0 / aspectRatio;
+	}
+
+	Matrix.orthographic (this.spriteRenderer.projection, width, height, -1.0, 1.0);
 }

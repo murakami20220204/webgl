@@ -13,13 +13,15 @@ var SpriteRenderer = function (resources) {
 	const gl = resources.gl;
 	this.gl = gl;
 	this.program = resources.spriteProgram;
+	this.projection = Matrix.createIdentity ();
+	this.projectionUniform = resources.spriteProjectionUniform;
 	this.samplerUniform = resources.spriteSamplerUniform;
 	this.texcoordAttribute = resources.spriteTexcoordAttribute;
 	this.texcoordBuffer = GL.createVertexBuffer (gl, SPRITE_TEXCOORDS);
 	this.texture = null;
 	this.vertexAttribute = resources.spriteVertexAttribute;
 	this.vertexBuffer = GL.createVertexBuffer (gl, SPRITE_VERTICES);
-	this.world = Matrix.create ();
+	this.world = Matrix.createIdentity ();
 	this.worldUniform = resources.spriteWorldUniform;
 }
 
@@ -48,6 +50,7 @@ SpriteRenderer.prototype.enable = function () {
 
 SpriteRenderer.prototype.update = function () {
 	const gl = this.gl;
+	gl.uniformMatrix4fv (this.projectionUniform, false, this.projection);
 	gl.uniformMatrix4fv (this.worldUniform, false, this.world);
 	gl.activeTexture (gl.TEXTURE0);
 	gl.bindTexture (gl.TEXTURE_2D, this.texture);

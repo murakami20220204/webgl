@@ -11,6 +11,7 @@ var ShaderResources = function (gl) {
 	this.spriteTexcoordAttribute = gl.getAttribLocation (this.spriteProgram, "Texcoord");
 	this.spriteVertexAttribute = gl.getAttribLocation (this.spriteProgram, "Vertex");
 	this.spriteSamplerUniform = gl.getUniformLocation (this.spriteProgram, "Sampler");
+	this.spriteProjectionUniform = gl.getUniformLocation (this.spriteProgram, "Projection");
 	this.spriteWorldUniform = gl.getUniformLocation (this.spriteProgram, "World");
 }
 
