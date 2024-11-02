@@ -16,7 +16,6 @@ function createByteArrayFromBase64 (source) {
 
 function onAnimationFrame (timestamp) {
 	game.deltaSeconds = timestamp - game.deltaSeconds;
-	resize ();
 	game.update ();
 	game.draw ();
 	window.requestAnimationFrame (onAnimationFrame);
@@ -31,16 +30,4 @@ function onLoad (event) {
 	canvas.width
 	game = new Game ();
 	window.requestAnimationFrame (onAnimationFrame);
-}
-
-function resize () {
-	const width = canvas.clientWidth;
-	const height = canvas.clientHeight;
-
-	if ((canvas.width != width) || (canvas.height != height)) {
-		canvas.width = width;
-		canvas.height = height;
-		game.surfaceWidth = width;
-		game.surfaceHeight = height;
-	}
 }

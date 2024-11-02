@@ -115,6 +115,12 @@ class Point4F extends Float32Array {
 	sub    (p2)     {        Point4.sub    (this, this, p2);     }
 	trans  (m)      {        Point4.trans  (this, this, m);      }
 }
+class Color extends Uint8Array {
+	constructor () { super (Color.LENGTH); }
+}
+class ColorF extends Float32Array {
+	constructor () { super (Color.LENGTH); }
+}
 class Matrix3x2 extends Int32Array {
 	constructor () { super (Matrix3x2.LENGTH); }
 }
@@ -126,6 +132,10 @@ class Matrix4x4 extends Int32Array {
 }
 class Matrix4x4F extends Float32Array {
 	constructor () { super (Matrix4x4.LENGTH); }
+	mul          (m2)                         { Matrix4x4.mul          (this, this, m2);                   }
+	orthographic (width = 1, height = 1, nearZ = -1, farZ = 1) { Matrix4x4.orthographic (this, width, height, nearZ, farZ); }
+	scaling      (x, y, z)                    { Matrix4x4.scaling      (this, x, y, z);                    }
+	translation  (x, y, z)                    { Matrix4x4.translation  (this, x, y, z);                    }
 }
 Object.defineProperties (Scalar, {
 	EPSILON: { value: 0.000001 },
@@ -165,6 +175,9 @@ Object.defineProperties (Point4, {
 	UNIT_W: { value: [0, 0, 0, 1] },
 	ZERO: { value: [0, 0, 0, 0] }
 });
+Object.defineProperties (Color, {
+	LENGTH: { value: 4 }
+});
 Object.defineProperties (Matrix3x2, {
 	IDENTITY: { value: [1, 0, 0, 1, 0, 0] },
 	COLUMN: { value: 2 },
@@ -191,6 +204,18 @@ Object.defineProperties (Point4F.prototype, {
 	y: { get: function () { return this [1]; }, set: function (value) { this [1] = value; }},
 	z: { get: function () { return this [2]; }, set: function (value) { this [2] = value; }},
 	w: { get: function () { return this [3]; }, set: function (value) { this [3] = value; }}
+});
+Object.defineProperties (Color.prototype, {
+	r: { get: function () { return this [0]; }, set: function (value) { this [0] = value; }},
+	g: { get: function () { return this [1]; }, set: function (value) { this [1] = value; }},
+	b: { get: function () { return this [2]; }, set: function (value) { this [2] = value; }},
+	a: { get: function () { return this [3]; }, set: function (value) { this [3] = value; }}
+});
+Object.defineProperties (ColorF.prototype, {
+	r: { get: function () { return this [0]; }, set: function (value) { this [0] = value; }},
+	g: { get: function () { return this [1]; }, set: function (value) { this [1] = value; }},
+	b: { get: function () { return this [2]; }, set: function (value) { this [2] = value; }},
+	a: { get: function () { return this [3]; }, set: function (value) { this [3] = value; }}
 });
 Object.defineProperties (Matrix3x2F.prototype, {
 	_11: { get: function () { return this [0]; }, set: function (value) { this [0] = value; }},
@@ -279,6 +304,16 @@ Point4F.create = function (args) {
 	const p0 = new Point4F ();
 	p0.set (args);
 	return p0;
+}
+Color.create = function (args) {
+	const value = new Color ();
+	value.set (args);
+	return value;
+}
+ColorF.create = function (args) {
+	const value = new ColorF ();
+	value.set (args);
+	return value;
 }
 Matrix3x2F.create = function (args) {
 	const m0 = new Matrix3x2F ();
