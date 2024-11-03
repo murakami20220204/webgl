@@ -1,404 +1,258 @@
 ﻿/*
 Copyright 2024 Taichi Murakami.
 ゲーム用数学関数を実装します。
-Vector クラスは要素数 4 の実数配列を操作する方法を提供します。
-Matrix クラスは要素数 16 の実数配列を操作する方法を提供します。
-各クラスの Create 関数を呼び出して新しい実数配列を作成できます。
-Scalar クラス、Vector 2 クラス、Vector 3 クラス、および Vector 4 クラスはそれぞれ実数、二次元ベクトル、三次元ベクトル、および四次元ベクトルに特有の操作を提供します。
+R: 実数.
+V: ベクトル.
+M: 行列.
 */
-
-var Scalar = {
-	EPSILON: 0.000001,
-	TO_DEGREES: 180.0 / Math.PI,
-	TO_RADIANS: Math.PI / 180.0,
-	convertToDegrees: function (radians) {
-		return (radians * this.TO_DEGREES);
-	},
-	convertToRadians: function (degrees) {
-		return (degrees * this.TO_RADIANS);
-	},
-	isPowerOfTwo: function (value) {
-		if (value > 0) while (value) {
-			if (value == 1) return true;
-			else value = value >> 1;
-		}
-
-		return false;
-	}
-};
-
-var Vector = {
-	add: function (r0, r1, r2) {
-		this.set (r0,
-			r1 [0] + r2 [0],
-			r1 [1] + r2 [1],
-			r1 [2] + r2 [2],
-			r1 [3] + r2 [3]);
-	},
-	create: function () {
-		return (new Float32Array (4));
-	},
-	divide: function (r0, r1, r2) {
-		this.set (r0,
-			r1 [0] / r2 [0],
-			r1 [1] / r2 [1],
-			r1 [2] / r2 [2],
-			r1 [3] / r2 [3]);
-	},
-	multiply: function (r0, r1, r2) {
-		this.set (r0,
-			r1 [0] * r2 [0],
-			r1 [1] * r2 [1],
-			r1 [2] * r2 [2],
-			r1 [3] * r2 [3]);
-	},
-	multiplyAdd: function (r0, r1, r2, r3) {
-		this.set (r0,
-			r1 [0] * r2 [0] + r3 [0],
-			r1 [1] * r2 [1] + r3 [1],
-			r1 [2] * r2 [2] + r3 [2],
-			r1 [3] * r2 [3] + r3 [3]);
-	},
-	negate: function (r0, r1) {
-		this.set (r0, -r1 [0], -r1 [1], -r1 [2], -r1 [3]);
-	},
-	one: function (r0) {
-		this.replicate(r0, 1.0);
-	},
-	replicate: function (r0, v) {
-		this.set (r0, v, v, v, v);
-	},
-	set: function (r0, x, y, z, w) {
-		r0 [0] = x;
-		r0 [1] = y;
-		r0 [2] = z;
-		r0 [3] = w;
-	},
-	subtract: function (r0, r1, r2) {
-		this.set (r0,
-			r1 [0] - r2 [0],
-			r1 [1] - r2 [1],
-			r1 [2] - r2 [2],
-			r1 [3] - r2 [3]);
-	},
-	unitW: function (r0) {
-		this.set (r0, 0.0, 0.0, 0.0, 1.0);
-	},
-	unitX: function (r0) {
-		this.set (r0, 1.0, 0.0, 0.0, 0.0);
-	},
-	unitY: function (r0) {
-		this.set (r0, 0.0, 1.0, 0.0, 0.0);
-	},
-	unitZ: function (r0) {
-		this.set (r0, 0.0, 0.0, 1.0, 0.0);
-	},
-	zero: function (r0) {
-		this.replicate(r0, 0.0);
-	}
-};
-
-var Vector2 = {
-	cross: function (r1, r2) {
-		return (
-			(r1 [0] * r2 [1]) -
-			(r1 [1] * r2 [0]));
-	},
-	dot: function (r1, r2) {
-		return (
-			(r1 [0] * r2 [0]) +
-			(r1 [1] * r2 [1]));
-	},
-	length : function (r1) {
-		const length = this.lengthSquared (r1);
-		return (Math.sqrt (length));
-	},
-	lengthSquared: function (r1) {
-		return (this.dot (r1, r1));
-	},
-	normalize: function (r0, r1) {
-		let length = this.length (r1);
-		if (length > 0) length = 1.0 / length;
-		Vector.set (r0,
-			r1 [0] * length,
-			r1 [1] * length,
-			0.0,
-			0.0);
-	},
-	transform: function (r0, v1, m2) {
-		const r1 = Vector.create ();
-		const r2 = Vector.create ();
-		const r3 = Vector.create ();
-		Vector.set (r0, m2 [12], m2 [13], m2 [14], m2 [15]);
-		Vector.set (r1, m2 [4], m2 [5], m2 [6], m2 [7]);
-		Vector.replicate (r2, v1 [1]);
-		Vector.multiplyAdd (r3, r2, r1, r0);
-		Vector.set (r2, m2 [0], m2 [1], m2 [2], m2 [3]);
-		Vector.replicate (r1, v1 [0]);
-		Vector.multiplyAdd (r0, r1, r2, r3);
-	}
-};
-
-var Vector3 = {
-	cross: function (r0, r1, r2) {
-		Vector.set (r0,
-			(r1 [1] * r2 [2]) - (r1 [2] * r2 [1]),
-			(r1 [2] * r2 [0]) - (r1 [0] * r2 [2]),
-			(r1 [0] * r2 [1]) - (r1 [1] * r2 [0]),
-			0.0);
-	},
-	dot: function (r1, r2) {
-		return (
-			(r1 [0] * r2 [0]) +
-			(r1 [1] * r2 [1]) +
-			(r1 [2] * r2 [2]));
-	},
-	length : function (r1) {
-		const length = this.lengthSquared (r1);
-		return (Math.sqrt (length));
-	},
-	lengthSquared: function (r1) {
-		return (this.dot (r1, r1));
-	},
-	normalize: function (r0, r1) {
-		let length = this.length (r1);
-		if (length > 0) length = 1.0 / length;
-		Vector.set (r0,
-			r1 [0] * length,
-			r1 [1] * length,
-			r1 [2] * length,
-			0.0);
-	},
-	transform: function (r0, v, m) {
-		const r1 = Vector.create ();
-		const r2 = Vector.create ();
-		const r3 = Vector.create ();
-		Vector.set (r3, m [12], m [13], m [14], m [15]);
-		Vector.set (r2, m [8], m [9], m [10], m [11]);
-		Vector.replicate (r1, v [2]);
-		Vector.multiplyAdd (r0, r1, r2, r3);
-		Vector.set (r2, m [4], m [5], m [6], m [7]);
-		Vector.replicate (r1, v [1]);
-		Vector.multiplyAdd (r3, r2, r1, r0);
-		Vector.set (r2, m [0], m [1], m [2], m [3]);
-		Vector.replicate (r1, v [0]);
-		Vector.multiplyAdd (r0, r1, r2, r3);
-	}
-};
-
-var Vector4 = {
-	dot: function (r1, r2) {
-		return (
-			(r1 [0] * r2 [0]) +
-			(r1 [1] * r2 [1]) +
-			(r1 [2] * r2 [2]) +
-			(r1 [3] * r2 [3]));
-	},
-	length : function (r1) {
-		const length = this.lengthSquared (r1);
-		return (Math.sqrt (length));
-	},
-	lengthSquared: function (r1) {
-		return (this.dot (r1, r1));
-	},
-	normalize: function (r0, r1) {
-		let length = this.length (r1);
-		if (length > 0) length = 1.0 / length;
-		Vector.set (r0,
-			r1 [0] * length,
-			r1 [1] * length,
-			r1 [2] * length,
-			r1 [3] * length);
-	}
-};
-
-var Matrix = {
-	create: function () {
-		return (new Float32Array (16));
-	},
-	createIdentity: function () {
-		const self = this.create ();
-		this.identity (self);
-		return (self);
-	},
-	identity: function (m0) {
-		this.set (m0,
-			1.0, 0.0, 0.0, 0.0,
-			0.0, 1.0, 0.0, 0.0,
-			0.0, 0.0, 1.0, 0.0,
-			0.0, 0.0, 0.0, 1.0);
-	},
-	inverse: function (m0, m1) {
-	},
-	lookAt: function (m0, eyePosition, focusPosition, upDirection) {
-		const eyeDirection = Vector.create ();
-		Vector.subtract (eyeDirection, focusPosition, eyePosition);
-		this.lookTo (m0, eyePosition, eyeDirection, upDirection);
-	},
-	lookTo: function (m0, eyePosition, eyeDirection, upDirection) {
-		const r0 = Vector.create ();
-		const r1 = Vector.create ();
-		const r2 = Vector.create ();
-		const negEyePosition = Vector.create ();
-		Vector3.normalize (r2, eyeDirection);
-		Vector3.cross (r0, upDirection, r2);
-		Vector3.normalize (r0, r0);
-		Vector3.cross (r1, r2, r0);
-		Vector.negate (negEyePosition, eyePosition);
-		const z0 = Vector3.dot (r0, negEyePosition);
-		const z1 = Vector3.dot (r1, negEyePosition);
-		const z2 = Vector3.dot (r2, negEyePosition);
-		this.set (m0,
-			r0 [0], r1 [0], r2 [0], 0.0,
-			r0 [1], r1 [1], r2 [1], 0.0,
-			r0 [2], r1 [2], r2 [2], 0.0,
-			z0    , z1    , z2    , 1.0);
-	},
-	multiply: function (m0, m1, m2) {
-		let x = m1 [0];
-		let y = m1 [1];
-		let z = m1 [2];
-		let w = m1 [3];
-		m0 [0] = (m2 [0] * x) + (m2 [4] * y) + (m2 [ 8] * z) + (m2 [12] * w);
-		m0 [1] = (m2 [1] * x) + (m2 [5] * y) + (m2 [ 9] * z) + (m2 [13] * w);
-		m0 [2] = (m2 [2] * x) + (m2 [6] * y) + (m2 [10] * z) + (m2 [14] * w);
-		m0 [3] = (m2 [3] * x) + (m2 [7] * y) + (m2 [11] * z) + (m2 [15] * w);
-		x = m1 [4];
-		y = m1 [5];
-		z = m1 [6];
-		w = m1 [7];
-		m0 [4] = (m2 [0] * x) + (m2 [4] * y) + (m2 [ 8] * z) + (m2 [12] * w);
-		m0 [5] = (m2 [1] * x) + (m2 [5] * y) + (m2 [ 9] * z) + (m2 [13] * w);
-		m0 [6] = (m2 [2] * x) + (m2 [6] * y) + (m2 [10] * z) + (m2 [14] * w);
-		m0 [7] = (m2 [3] * x) + (m2 [7] * y) + (m2 [11] * z) + (m2 [15] * w);
-		x = m1 [ 8];
-		y = m1 [ 9];
-		z = m1 [10];
-		w = m1 [11];
-		m0 [ 8] = (m2 [0] * x) + (m2 [4] * y) + (m2 [ 8] * z) + (m2 [12] * w);
-		m0 [ 9] = (m2 [1] * x) + (m2 [5] * y) + (m2 [ 9] * z) + (m2 [13] * w);
-		m0 [10] = (m2 [2] * x) + (m2 [6] * y) + (m2 [10] * z) + (m2 [14] * w);
-		m0 [11] = (m2 [3] * x) + (m2 [7] * y) + (m2 [11] * z) + (m2 [15] * w);
-		x = m1 [12];
-		y = m1 [13];
-		z = m1 [14];
-		w = m1 [15];
-		m0 [12] = (m2 [0] * x) + (m2 [4] * y) + (m2 [ 8] * z) + (m2 [12] * w);
-		m0 [13] = (m2 [1] * x) + (m2 [5] * y) + (m2 [ 9] * z) + (m2 [13] * w);
-		m0 [14] = (m2 [2] * x) + (m2 [6] * y) + (m2 [10] * z) + (m2 [14] * w);
-		m0 [15] = (m2 [3] * x) + (m2 [7] * y) + (m2 [11] * z) + (m2 [15] * w);
-	},
-	orthographic: function (m0, width, height, nearZ, farZ) {
-		const range = nearZ / (farZ - nearZ);
-		this.set (m0,
-			2.0 / width,
-			0.0, 0.0, 0.0, 0.0,
-			2.0 / height,
-			0.0, 0.0, 0.0, 0.0,
-			range,
-			0.0, 0.0, 0.0,
-			-range * nearZ,
-			1.0);
-	},
-	perspective: function (m0, fovAngleY, aspectRatio, nearZ, farZ) {
-		const cosFov = Math.cos (fovAngleY);
-		const sinFov = Math.sin (fovAngleY);
-		const range = 1.0 / (farZ - nearZ);
-		const height = cosFov / sinFov;
-		const width = height / aspectRatio;
-		this.set (m0,
-			width,
-			0.0, 0.0, 0.0, 0.0,
-			height,
-			0.0, 0.0, 0.0, 0.0,
-			range * (farZ + nearZ),
-			1.0, 0.0, 0.0,
-			-range * 2.0 * (farZ * nearZ),
-			0.0);
-	},
-	rotation: function (m0, x, y, z) {
-		const cosX = Math.cos (x);
-		const sinX = Math.sin (x);
-		const cosY = Math.cos (y);
-		const sinY = Math.sin (y);
-		const cosZ = Math.cos (z);
-		const sinZ = Math.sin (z);
-		this.set (m0,
-			(sinX * sinY * sinZ) + (cosY * cosZ),
-			cosX * sinZ,
-			(sinX * cosY * sinZ) - (sinY * cosZ),
-			0.0,
-			(sinX * sinY * cosZ) - (cosY * sinZ),
-			cosX * cosZ,
-			(sinX * cosY * cosZ) + (sinY * sinZ),
-			0.0,
-			cosX * sinY,
-			-sinX,
-			cosX * cosY,
-			0.0,
-			0.0, 0.0, 0.0, 1.0);
-	},
-	rotationFromVector: function (m0, v) {
-		this.rotation (m0, v [0], v [1], v [2]);
-	},
-	rotationX: function (m0, x) {
-		const cosX = Math.cos (x);
-		const sinX = Math.sin (x);
-		this.set (m0,
-			1.0,   0.0,  0.0, 0.0,
-			0.0,  cosX, sinX, 0.0,
-			0.0, -sinX, cosX, 0.0,
-			0.0,   0.0,  0.0, 1.0);
-	},
-	rotationY: function (m0, y) {
-		const cosY = Math.cos (y);
-		const sinY = Math.sin (y);
-		this.set (m0,
-			cosY, 0.0, -sinY, 0.0,
-			 0.0, 1.0,   0.0, 0.0,
-			sinY, 0.0,  cosY, 0.0,
-			 0.0, 0.0,   0.0, 1.0);
-	},
-	rotationZ: function (m0, z) {
-		const cosZ = Math.cos (z);
-		const sinZ = Math.sin (z);
-		this.set (m0,
-			 cosZ, sinZ, 0.0, 0.0,
-			-sinZ, cosZ, 0.0, 0.0,
-			  0.0,  0.0, 1.0, 0.0,
-			  0.0,  0.0, 0.0, 1.0);
-	},
-	scaling: function (m0, x, y, z) {
-		this.set (m0,
-			  x, 0.0, 0.0, 0.0,
-			0.0,   y, 0.0, 0.0,
-			0.0, 0.0,   z, 0.0,
-			0.0, 0.0, 0.0, 1.0);
-	},
-	scalingFromVector: function (m0, v) {
-		this.scaling (m0, v [0], v [1], v [2]);
-	},
-	set: function (m0, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44) {
-		m0 [ 0] = m11; m0 [ 1] = m12; m0 [ 2] = m13; m0 [ 3] = m14;
-		m0 [ 4] = m21; m0 [ 5] = m22; m0 [ 6] = m23; m0 [ 7] = m24;
-		m0 [ 8] = m31; m0 [ 9] = m32; m0 [10] = m33; m0 [11] = m34;
-		m0 [12] = m41; m0 [13] = m42; m0 [14] = m43; m0 [15] = m44;
-	},
-	translation: function (m0, x, y, z) {
-		this.set (m0,
-			1.0, 0.0, 0.0, 0.0,
-			0.0, 1.0, 0.0, 0.0,
-			0.0, 0.0, 1.0, 0.0,
-			  x,   y,   z, 1.0);
-	},
-	translationFromVector: function (m0, v) {
-		this.translation (m0, v [0], v [1], v [2]);
-	},
-	transpose: function (m0, m1) {
-		this.set (m0,
-			m1 [0], m1 [4], m1 [ 8], m1 [12],
-			m1 [1], m1 [5], m1 [ 9], m1 [13],
-			m1 [2], m1 [6], m1 [10], m1 [14],
-			m1 [3], m1 [7], m1 [11], m1 [15]);
-	},
-};
+class Scalar {}
+class Vector {}
+class Vector2 {}
+class Vector3 {}
+class Vector4 {}
+class Matrix3x2 {}
+class Matrix4x4 {}
+Object.defineProperties (Scalar, {
+	EPSILON: { value: 0.000001 },
+	TO_DEGREES: { value: 180 / Math.PI },
+	TO_RADIANS: { value: Math.PI / 180 }});
+Object.defineProperties (Vector2, {
+	LENGTH: { value: 2 },
+	NEG_X: { value: [-1, 0] },
+	NEG_Y: { value: [0, -1] },
+	ONE: { value: [1, 1] },
+	UNIT_X: { value: [1, 0] },
+	UNIT_Y: { value: [0, 1] },
+	ZERO: { value: [0, 0] }});
+Object.defineProperties (Vector3, {
+	LENGTH: { value: 3 },
+	NEG_X: { value: [-1, 0, 0] },
+	NEG_Y: { value: [0, -1, 0] },
+	NEG_Z: { value: [0, 0, -1] },
+	ONE: { value: [1, 1, 1] },
+	UNIT_X: { value: [1, 0, 0] },
+	UNIT_Y: { value: [0, 1, 0] },
+	UNIT_Z: { value: [0, 0, 1] },
+	ZERO: { value: [0, 0, 0] }});
+Object.defineProperties (Vector4, {
+	LENGTH: { value: 4 },
+	NEG_X: { value: [-1, 0, 0, 0] },
+	NEG_Y: { value: [0, -1, 0, 0] },
+	NEG_Z: { value: [0, 0, -1, 0] },
+	NEG_W: { value: [0, 0, 0, -1] },
+	ONE: { value: [1, 1, 1, 1] },
+	UNIT_X: { value: [1, 0, 0, 0] },
+	UNIT_Y: { value: [0, 1, 0, 0] },
+	UNIT_Z: { value: [0, 0, 1, 0] },
+	UNIT_W: { value: [0, 0, 0, 1] },
+	ZERO: { value: [0, 0, 0, 0] }});
+Object.defineProperties (Matrix3x2, {
+	IDENTITY: { value: [1, 0, 0, 1, 0, 0] },
+	COLUMN: { value: 2 },
+	LENGTH: { value: 6 },
+	ROW: { value: 3 }});
+Object.defineProperties (Matrix4x4, {
+	IDENTITY: { value: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] },
+	COLUMN: { value: 4 },
+	LENGTH: { value: 16 },
+	ROW: { value: 4 }});
+Scalar.convertToDegrees = function (radians = 0) { return radians * Scalar.TO_DEGREES; }
+Scalar.convertToRadians = function (degrees = 0) { return degrees * Scalar.TO_RADIANS; }
+Scalar.isPowerOfTwo = function (value = 0) { if (value > 0) do if (value == 1) return true; else value = value >> 1; while (value); return false; }
+Vector.add = function (V0, V1, V2) { for (let i = 0; i < V0.length; i++) V0 [i] = V1 [i] + V2 [i]; }
+Vector.div = function (V0, V1, V2) { for (let i = 0; i < V0.length; i++) V0 [i] = V1 [i] / V2 [i]; }
+Vector.dot = function (V1, V2) { let R0 = 0; for (let i = 0; i < V1.length; i++) R0 += V1 [i] + V2 [i]; return R0; }
+Vector.length = function (V1) { return Math.sqrt (Vector.lengthSquared (V1)); }
+Vector.lengthSquared = function (V1) { return Vector.dot (V1, V1); }
+Vector.mod = function (V0, V1, V2) { for (let i = 0; i < V0.length; i++) V0 [i] = V1 [i] % V2 [i]; }
+Vector.mul = function (V0, V1, V2) { for (let i = 0; i < V0.length; i++) V0 [i] = V1 [i] * V2 [i]; }
+Vector.mulAdd = function (V0, V1, V2, V3) { for (let i = 0; i < V0.length; i++) V0 [i] = V1 [i] * V2 [i] + V3 [i]; }
+Vector.negate = function (V0, V1) { for (let i = 0; i < V0.length; i++) V0 [i] = -V1 [i]; }
+Vector.normalize = function (V0, V1) { let length = Vector.length (V1); if (length > 0) length = 1 / length; for (let i = 0; i < V0.length; i++) V0 [i] = V1 [i] * length; }
+Vector.replicate = function (V0, R1) { for (let i = 0; i < V0.length; i++) V0 [i] = R1; }
+Vector.sub = function (V0, V1, V2) { for (let i = 0; i < V0.length; i++) V0 [i] = V1 [i] - V2 [i]; }
+Vector2.cross = function (V1, V2) {
+	/* R0 = (V1_x * V2_y) - (V1_y * V2_x). */
+	return (V1 [0] * V2 [1]) - (V1 [1] * V2 [0]); }
+Vector2.transform = function (V0, V1, M2) { V0.set ([
+	/* V0_x = (V1_x * M2_11) + (V1_y * M2_21) + M2_31. */
+	/* V0_y = (V1_x * M2_12) + (V1_y * M2_22) + M2_32. */
+	(V1 [0] * M2 [0]) + (V1 [1] * M2 [2]) + M2 [4],
+	(V1 [0] * M2 [1]) + (V1 [1] * M2 [3]) + M2 [5]]); }
+Vector3.cross = function (V0, V1, V2) { V0.set ([
+	/* V0_x = (V1_y * V2_z) - (V1_z * V2_y). */
+	/* V0_y = (V1_z * V2_x) - (V1_x * V2_z). */
+	/* V0_z = (V1_x * V2_y) - (V1_y * V2_x). */
+	(V1 [1] * V2 [2]) - (V1 [2] * V2 [1]),
+	(V1 [2] * V2 [0]) - (V1 [0] * V2 [2]),
+	(V1 [0] * V2 [1]) - (V1 [1] * V2 [0])]); }
+Vector3.transform = function (V0, V1, M2) { V0.set ([
+	/* V0_x = (V1_x * M2_11) + (V1_y * M2_21) + (V1_z * M2_31) + M2_41. */
+	/* V0_y = (V1_x * M2_12) + (V1_y * M2_22) + (V1_z * M2_32) + M2_42. */
+	/* V0_z = (V1_x * M2_13) + (V1_y * M2_23) + (V1_z * M2_33) + M2_43. */
+	(V1 [0] * M2 [0]) + (V1 [1] * M2 [4]) + (V1 [2] * M2 [8]) + M2 [12],
+	(V1 [0] * M2 [1]) + (V1 [1] * M2 [5]) + (V1 [2] * M2 [9]) + M2 [13],
+	(V1 [0] * M2 [2]) + (V1 [1] * M2 [6]) + (V1 [2] * M2 [10]) + M2 [14]]); }
+Vector4.transform = function (V0, V1, M2) { V0.set ([
+	/* V0_x = (V1_x * M2_11) + (V1_y * M2_21) + (V1_z * M2_31) + (V1_w * M2_41). */
+	/* V0_y = (V1_x * M2_12) + (V1_y * M2_22) + (V1_z * M2_32) + (V1_w * M2_42). */
+	/* V0_z = (V1_x * M2_13) + (V1_y * M2_23) + (V1_z * M2_33) + (V1_w * M2_43). */
+	/* V0_w = (V1_x * M2_14) + (V1_y * M2_24) + (V1_z * M2_34) + (V1_w * M2_44). */
+	(V1 [0] * M2 [0]) + (V1 [1] * M2 [4]) + (V1 [2] * M2 [8])  + (V1 [3] * M2 [12]),
+	(V1 [0] * M2 [1]) + (V1 [1] * M2 [5]) + (V1 [2] * M2 [9])  + (V1 [3] * M2 [13]),
+	(V1 [0] * M2 [2]) + (V1 [1] * M2 [6]) + (V1 [2] * M2 [10]) + (V1 [3] * M2 [14]),
+	(V1 [0] * M2 [3]) + (V1 [1] * M2 [7]) + (V1 [2] * M2 [11]) + (V1 [3] * M2 [15])]); }
+Matrix3x2.mul = function (M0, M1, M2) { M0.set ([
+	/* M0_11 = (M1_11 * M2_11) + (M1_12 * M2_21) + M2_31. */
+	/* M0_12 = (M1_11 * M2_12) + (M1_12 * M2_22) + M2_32. */
+	(M1 [0] * M2 [0]) + (M1 [1] * M2 [2]) + M2 [4],
+	(M1 [0] * M2 [1]) + (M1 [1] * M2 [3]) + M2 [5],
+	/* M0_21 = (M1_21 * M2_11) + (M1_22 * M2_21) + M2_31. */
+	/* M0_22 = (M1_21 * M2_12) + (M1_22 * M2_22) + M2_32. */
+	(M1 [2] * M2 [0]) + (M1 [3] * M2 [2]) + M2 [4],
+	(M1 [2] * M2 [1]) + (M1 [3] * M2 [3]) + M2 [5],
+	/* M0_31 = (M1_31 * M2_11) + (M1_32 * M2_21) + M2_31. */
+	/* M0_32 = (M1_31 * M2_12) + (M1_32 * M2_22) + M2_32. */
+	(M1 [4] * M2 [0]) + (M1 [5] * M2 [2]) + M2 [4],
+	(M1 [4] * M2 [1]) + (M1 [5] * M2 [3]) + M2 [5]]); }
+Matrix3x2.rotation = function (M0, z = 0) {
+	const cosZ = Math.cos (z);
+	const sinZ = Math.sin (z);
+	M0.set ([
+		cosZ,  sinZ,
+		-sinZ, cosZ,
+		0,     0   ]); }
+Matrix3x2.scaling = function (M0, x = 1, y = 1) { M0.set ([
+	x, 0,
+	0, y,
+	0, 0]); }
+Matrix3x2.scalingFromVector = function (M0, V1) { Matrix3x2.scaling (M0, V1 [0], V1 [1]); }
+Matrix3x2.translation = function (M0, x = 0, y = 0) { M0.set ([
+	1, 0,
+	0, 1,
+	x, y]); }
+Matrix3x2.translationFromVector = function (M0, V1) { Matrix3x2.translation (M0, V1 [0], V1 [1]); }
+Matrix4x4.lookAt = function (M0, eyePosition, focusPosition, upDirection) {
+	const eyeDirection = new Float32Array (3);
+	Vector.sub (eyeDirection, focusPosition, eyePosition);
+	Matrix4x4.lookTo (M0, eyePosition, eyeDirection, upDirection); }
+Matrix4x4.lookTo = function (M0, eyePosition, eyeDirection, upDirection) {
+	const V1 = new Float32Array (3);
+	const V2 = new Float32Array (3);
+	const V3 = new Float32Array (3);
+	const V4 = new Float32Array (3);
+	Vector.normalize (V3, eyeDirection);
+	Vector3.cross (V1, upDirection, V3);
+	Vector.normalize (V1, V1);
+	Vector3.cross (V2, V3, V1);
+	Vector.negate (V4, eyePosition);
+	M0.set ([
+		V1 [0],              V2 [0],              V3 [0],              0,
+		V1 [1],              V2 [1],              V3 [1],              0,
+		V1 [2],              V2 [2],              V3 [2],              0,
+		Vector.dot (V1, V4), Vector.dot (V2, V4), Vector.dot (V3, V4), 1]); }
+Matrix4x4.mul = function (M0, M1, M2) { M0.set ([
+	/* M0_11 = (M1_11 * M2_11) + (M1_12 * M2_21) + (M1_13 * M2_31) + (M1_14 * M2_41). */
+	/* M0_12 = (M1_11 * M2_12) + (M1_12 * M2_22) + (M1_13 * M2_32) + (M1_14 * M2_42). */
+	/* M0_13 = (M1_11 * M2_13) + (M1_12 * M2_23) + (M1_13 * M2_33) + (M1_14 * M2_43). */
+	/* M0_14 = (M1_11 * M2_14) + (M1_12 * M2_24) + (M1_13 * M2_34) + (M1_14 * M2_44). */
+	(M1 [0] * M2 [0]) + (M1 [1] * M2 [4]) + (M1 [2] * M2 [8])  + (M1 [3] * M2 [12]),
+	(M1 [0] * M2 [1]) + (M1 [1] * M2 [5]) + (M1 [2] * M2 [9])  + (M1 [3] * M2 [13]),
+	(M1 [0] * M2 [2]) + (M1 [1] * M2 [6]) + (M1 [2] * M2 [10]) + (M1 [3] * M2 [14]),
+	(M1 [0] * M2 [3]) + (M1 [1] * M2 [7]) + (M1 [2] * M2 [11]) + (M1 [3] * M2 [15]),
+	/* M0_21 = (M1_21 * M2_11) + (M1_22 * M2_21) + (M1_23 * M2_31) + (M1_24 * M2_41). */
+	/* M0_22 = (M1_21 * M2_12) + (M1_22 * M2_22) + (M1_23 * M2_32) + (M1_24 * M2_42). */
+	/* M0_23 = (M1_21 * M2_13) + (M1_22 * M2_23) + (M1_23 * M2_33) + (M1_24 * M2_43). */
+	/* M0_24 = (M1_21 * M2_14) + (M1_22 * M2_24) + (M1_23 * M2_34) + (M1_24 * M2_44). */
+	(M1 [4] * M2 [0]) + (M1 [5] * M2 [4]) + (M1 [6] * M2 [8])  + (M1 [7] * M2 [12]),
+	(M1 [4] * M2 [1]) + (M1 [5] * M2 [5]) + (M1 [6] * M2 [9])  + (M1 [7] * M2 [13]),
+	(M1 [4] * M2 [2]) + (M1 [5] * M2 [6]) + (M1 [6] * M2 [10]) + (M1 [7] * M2 [14]),
+	(M1 [4] * M2 [3]) + (M1 [5] * M2 [7]) + (M1 [6] * M2 [11]) + (M1 [7] * M2 [15]),
+	/* M0_31 = (M1_31 * M2_11) + (M1_32 * M2_21) + (M1_33 * M2_31) + (M1_34 * M2_41). */
+	/* M0_32 = (M1_31 * M2_12) + (M1_32 * M2_22) + (M1_33 * M2_32) + (M1_34 * M2_42). */
+	/* M0_33 = (M1_31 * M2_13) + (M1_32 * M2_23) + (M1_33 * M2_33) + (M1_34 * M2_43). */
+	/* M0_34 = (M1_31 * M2_14) + (M1_32 * M2_24) + (M1_33 * M2_34) + (M1_34 * M2_44). */
+	(M1 [8] * M2 [0]) + (M1 [9] * M2 [4]) + (M1 [10] * M2 [8])  + (M1 [11] * M2 [12]),
+	(M1 [8] * M2 [1]) + (M1 [9] * M2 [5]) + (M1 [10] * M2 [9])  + (M1 [11] * M2 [13]),
+	(M1 [8] * M2 [2]) + (M1 [9] * M2 [6]) + (M1 [10] * M2 [10]) + (M1 [11] * M2 [14]),
+	(M1 [8] * M2 [3]) + (M1 [9] * M2 [7]) + (M1 [10] * M2 [11]) + (M1 [11] * M2 [15]),
+	/* M0_41 = (M1_41 * M2_11) + (M1_42 * M2_21) + (M1_43 * M2_31) + (M1_44 * M2_41). */
+	/* M0_42 = (M1_41 * M2_12) + (M1_42 * M2_22) + (M1_43 * M2_32) + (M1_44 * M2_42). */
+	/* M0_43 = (M1_41 * M2_13) + (M1_42 * M2_23) + (M1_43 * M2_33) + (M1_44 * M2_43). */
+	/* M0_44 = (M1_41 * M2_14) + (M1_42 * M2_24) + (M1_43 * M2_34) + (M1_44 * M2_44). */
+	(M1 [12] * M2 [0]) + (M1 [13] * M2 [4]) + (M1 [14] * M2 [8])  + (M1 [15] * M2 [12]),
+	(M1 [12] * M2 [1]) + (M1 [13] * M2 [5]) + (M1 [14] * M2 [9])  + (M1 [15] * M2 [13]),
+	(M1 [12] * M2 [2]) + (M1 [13] * M2 [6]) + (M1 [14] * M2 [10]) + (M1 [15] * M2 [14]),
+	(M1 [12] * M2 [3]) + (M1 [13] * M2 [7]) + (M1 [14] * M2 [11]) + (M1 [15] * M2 [15])]); }
+Matrix4x4.orthographic = function (M0, width, height, nearZ = -1, farZ = 1) {
+	const range = nearZ / (farZ - nearZ);
+	M0.set ([
+		2 / width, 0,          0,              0,
+		0,         2 / height, 0,              0,
+		0,         0,          range,          0,
+		0,         0,          -range * nearZ, 1]); }
+Matrix4x4.perspective = function (M0, fovAngleY, aspectRatio, nearZ, farZ) {
+	const cosFov = Math.cos (fovAngleY);
+	const sinFov = Math.sin (fovAngleY);
+	const range = 1.0 / (farZ - nearZ);
+	const height = cosFov / sinFov;
+	const width = height / aspectRatio;
+	M0.set ([
+		width, 0,      0,                           0,
+		0,     height, 0,                           0,
+		0,     0,      range * (farZ + nearZ),      1,
+		0,     0,      -2 * range * (farZ * nearZ), 0]); }
+Matrix4x4.rotation = function (M0, x = 0, y = 0, z = 0) {
+	const cosX = Math.cos (x);
+	const sinX = Math.sin (x);
+	const cosY = Math.cos (y);
+	const sinY = Math.sin (y);
+	const cosZ = Math.cos (z);
+	const sinZ = Math.sin (z);
+	M0.set ([
+		(sinX * sinY * sinZ) + (cosY * cosZ), cosX * sinZ, (sinX * cosY * sinZ) - (sinY * cosZ), 0,
+		(sinX * sinY * cosZ) - (cosY * sinZ), cosX * cosZ, (sinX * cosY * cosZ) + (sinY * sinZ), 0,
+		cosX * sinY,                          -sinX,       cosX * cosY,                          0,
+		0,                                    0,           0,                                    1]); }
+Matrix4x4.rotationFromVector = function (M0, V1) { Matrix4x4.rotation (M0, V1 [0], V1 [1], V1 [2]); }
+Matrix4x4.rotationX = function (M0, x = 0) {
+	const cosX = Math.cos (x);
+	const sinX = Math.sin (x);
+	M0.set ([
+		1, 0,     0,    0,
+		0, cosX,  sinX, 0,
+		0, -sinX, cosX, 0,
+		0, 0,     0,    1]); }
+Matrix4x4.rotationY = function (M0, y = 0) {
+	const cosY = Math.cos (y);
+	const sinY = Math.sin (y);
+	M0.set ([
+		cosY, 0, -sinY, 0,
+		0,    1, 0,     0,
+		sinY, 0, cosY,  0,
+		0,    0, 0,     1]); }
+Matrix4x4.rotationZ = function (M0, z = 0) {
+	const cosZ = Math.cos (z);
+	const sinZ = Math.sin (z);
+	M0.set ([
+		cosZ,  sinZ, 0, 0,
+		-sinZ, cosZ, 0, 0,
+		0,     0,    1, 0,
+		0,     0,    0, 1]); }
+Matrix4x4.scaling = function (M0, x = 1, y = 1, z = 1) { M0.set ([
+	x, 0, 0, 0,
+	0, y, 0, 0,
+	0, 0, z, 0,
+	0, 0, 0, 1]); }
+Matrix4x4.scalingFromVector = function (M0, V1) { Matrix4x4.scaling (M0, V1 [0], V1 [1], V1 [2]); }
+Matrix4x4.translation = function (M0, x = 0, y = 0, z = 0) { M0.set ([
+	1, 0, 0, 0,
+	0, 1, 0, 0,
+	0, 0, 1, 0,
+	x, y, z, 1]); }
+Matrix4x4.translationFromVector = function (M0, V1) { Matrix4x4.translation (M0, V1 [0], V1 [1], V1 [2]); }
+Matrix4x4.transpose = function (M0, M1) { M0.set ([
+	M1 [0], M1 [4], M1 [8],  M1 [12],
+	M1 [1], M1 [5], M1 [9],  M1 [13],
+	M1 [2], M1 [6], M1 [10], M1 [14],
+	M1 [3], M1 [7], M1 [11], M1 [15]]); }
