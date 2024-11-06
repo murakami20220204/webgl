@@ -5,13 +5,17 @@ R: 実数.
 V: ベクトル.
 M: 行列.
 */
-class Scalar {}
-class Vector {}
-class Vector2 {}
-class Vector3 {}
-class Vector4 {}
-class Matrix3x2 {}
-class Matrix4x4 {}
+var Color = function (r = 0, g = 0, b = 0, a = 0) { this.r = r; this.g = g; this.b = b; this.a = a; }
+var Point = function (x = 0, y = 0) { this.x = x; this.y = y; }
+var Rectangle = function (x = 0, y = 0, width = 0, height = 0) { this.x = x; this.y = y; this.width = width; this.height = height; }
+var Size = function (width = 0, height = 0) { this.width = width; this.height = height; }
+var Scalar = {}
+var Vector = {}
+var Vector2 = {}
+var Vector3 = {}
+var Vector4 = {}
+var Matrix3x2 = {}
+var Matrix4x4 = {}
 Object.defineProperties (Scalar, {
 	EPSILON: { value: 0.000001 },
 	TO_DEGREES: { value: 180 / Math.PI },
@@ -103,18 +107,19 @@ Vector4.transform = function (V0, V1, M2) { V0.set ([
 	(V1 [0] * M2 [2]) + (V1 [1] * M2 [6]) + (V1 [2] * M2 [10]) + (V1 [3] * M2 [14]),
 	(V1 [0] * M2 [3]) + (V1 [1] * M2 [7]) + (V1 [2] * M2 [11]) + (V1 [3] * M2 [15])]); }
 Matrix3x2.mul = function (M0, M1, M2) { M0.set ([
-	/* M0_11 = (M1_11 * M2_11) + (M1_12 * M2_21) + M2_31. */
-	/* M0_12 = (M1_11 * M2_12) + (M1_12 * M2_22) + M2_32. */
-	(M1 [0] * M2 [0]) + (M1 [1] * M2 [2]) + M2 [4],
-	(M1 [0] * M2 [1]) + (M1 [1] * M2 [3]) + M2 [5],
-	/* M0_21 = (M1_21 * M2_11) + (M1_22 * M2_21) + M2_31. */
-	/* M0_22 = (M1_21 * M2_12) + (M1_22 * M2_22) + M2_32. */
-	(M1 [2] * M2 [0]) + (M1 [3] * M2 [2]) + M2 [4],
-	(M1 [2] * M2 [1]) + (M1 [3] * M2 [3]) + M2 [5],
-	/* M0_31 = (M1_31 * M2_11) + (M1_32 * M2_21) + M2_31. */
-	/* M0_32 = (M1_31 * M2_12) + (M1_32 * M2_22) + M2_32. */
+	/* M0_11 = (M1_11 * M2_11) + (M1_12 * M2_21) + (M1_13 * M2_31). */
+	/* M0_12 = (M1_11 * M2_12) + (M1_12 * M2_22) + (M1_13 * M2_32). */
+	(M1 [0] * M2 [0]) + (M1 [1] * M2 [2]),
+	(M1 [0] * M2 [1]) + (M1 [1] * M2 [3]),
+	/* M0_21 = (M1_21 * M2_11) + (M1_22 * M2_21) + (M1_13 * M2_31). */
+	/* M0_22 = (M1_21 * M2_12) + (M1_22 * M2_22) + (M1_13 * M2_32). */
+	(M1 [2] * M2 [0]) + (M1 [3] * M2 [2]),
+	(M1 [2] * M2 [1]) + (M1 [3] * M2 [3]),
+	/* M0_31 = (M1_31 * M2_11) + (M1_32 * M2_21) + (M1_13 * M2_31). */
+	/* M0_32 = (M1_31 * M2_12) + (M1_32 * M2_22) + (M1_13 * M2_32). */
 	(M1 [4] * M2 [0]) + (M1 [5] * M2 [2]) + M2 [4],
 	(M1 [4] * M2 [1]) + (M1 [5] * M2 [3]) + M2 [5]]); }
+Matrix3x2.mulThis = function (M0, M2) { Matrix3x2.mul (M0, M0, M2); }
 Matrix3x2.rotation = function (M0, z = 0) {
 	const cosZ = Math.cos (z);
 	const sinZ = Math.sin (z);
@@ -132,6 +137,11 @@ Matrix3x2.translation = function (M0, x = 0, y = 0) { M0.set ([
 	0, 1,
 	x, y]); }
 Matrix3x2.translationFromVector = function (M0, V1) { Matrix3x2.translation (M0, V1 [0], V1 [1]); }
+Matrix4x4.from = function (M1) { return new Float32Array ([
+	M1 [0], M1 [1], 0, 0,
+	M1 [2], M1 [3], 0, 0,
+	0,      0,      1, 0,
+	M1 [4], M1 [5], 0, 1]); }
 Matrix4x4.lookAt = function (M0, eyePosition, focusPosition, upDirection) {
 	const eyeDirection = new Float32Array (3);
 	Vector.sub (eyeDirection, focusPosition, eyePosition);
@@ -184,6 +194,7 @@ Matrix4x4.mul = function (M0, M1, M2) { M0.set ([
 	(M1 [12] * M2 [1]) + (M1 [13] * M2 [5]) + (M1 [14] * M2 [9])  + (M1 [15] * M2 [13]),
 	(M1 [12] * M2 [2]) + (M1 [13] * M2 [6]) + (M1 [14] * M2 [10]) + (M1 [15] * M2 [14]),
 	(M1 [12] * M2 [3]) + (M1 [13] * M2 [7]) + (M1 [14] * M2 [11]) + (M1 [15] * M2 [15])]); }
+Matrix4x4.mulThis = function (M0, M2) { Matrix4x4.mul (M0, M0, M2); }
 Matrix4x4.orthographic = function (M0, width, height, nearZ = -1, farZ = 1) {
 	const range = nearZ / (farZ - nearZ);
 	M0.set ([
