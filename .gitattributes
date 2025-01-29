@@ -1,1 +1,9 @@
-* text=auto eol=crlf
+# Git Attributes
+*.png           binary
+*.css           text eol=crlf
+*.html          text eol=crlf
+*.js            text eol=crlf
+*.md            text eol=crlf
+.gitattributes  text eol=lf
+.gitignore      text eol=lf
+LICENSE         text eol=lf
