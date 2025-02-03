@@ -7,7 +7,7 @@ import * as Scalar from "./scalar.js";
 let gl = null;
 
 /* 新しい頂点バッファーを作成します。 */
-export function createBuffer(target, array, usage) {
+function createBuffer(target, array, usage) {
 	const buffer = gl.createBuffer();
 
 	if (buffer) {
@@ -20,7 +20,7 @@ export function createBuffer(target, array, usage) {
 }
 
 /* 既存の Shader から新しい Program を作成します。 */
-export function createProgram(vertexShader, fragmentShader) {
+function createProgram(vertexShader, fragmentShader) {
 	const program = gl.createProgram();
 
 	if (program) {
@@ -39,7 +39,7 @@ export function createProgram(vertexShader, fragmentShader) {
 }
 
 /* 既存のソースから新しい Shader を作成します。 */
-export function createShader(type, source) {
+function createShader(type, source) {
 	const shader = gl.createShader(type);
 
 	if (shader) {
@@ -57,7 +57,7 @@ export function createShader(type, source) {
 }
 
 /* 新しいテクスチャを作成します。 */
-export function createTexture(url) {
+function createTexture(url) {
 	const texture = gl.createTexture();
 
 	if (texture) {
@@ -85,6 +85,14 @@ export function createTexture(url) {
 	return texture;
 }
 
-export function setContext(context) {
+function setContext(context) {
 	gl = context;
 }
+
+export {
+	createBuffer,
+	createProgram,
+	createShader,
+	createTexture,
+	setContext
+};

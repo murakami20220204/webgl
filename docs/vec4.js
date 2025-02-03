@@ -4,29 +4,14 @@ GLSL における vec4 を表します。
 */
 
 import * as Scalar from "./scalar.js";
-const M11 = 0;
-const M12 = 1;
-const M13 = 2;
-const M14 = 3;
-const M21 = 4;
-const M22 = 5;
-const M23 = 6;
-const M24 = 7;
-const M31 = 8;
-const M32 = 9;
-const M33 = 10;
-const M34 = 11;
-const M41 = 12;
-const M42 = 13;
-const M43 = 14;
-const M44 = 15;
-export const COUNT = 4;
-export const X = 0;
-export const Y = 1;
-export const Z = 2;
-export const W = 3;
+const COUNT = 4;
+const M11 = 0,  M12 = 1,  M13 = 2,  M14 = 3;
+const M21 = 4,  M22 = 5,  M23 = 6,  M24 = 7;
+const M31 = 8,  M32 = 9,  M33 = 10, M34 = 11;
+const M41 = 12, M42 = 13, M43 = 14, M44 = 15;
+const X = 0, Y = 1, Z = 2, W = 3;
 
-export function add(v0, v1, v2) {
+function add(v0, v1, v2) {
 	load(v0,
 		v1[X] + v2[X],
 		v1[Y] + v2[Y],
@@ -35,11 +20,11 @@ export function add(v0, v1, v2) {
 	);
 }
 
-export function create() {
+function create() {
 	return new Float32Array(COUNT);
 }
 
-export function div(v0, v1, v2) {
+function div(v0, v1, v2) {
 	load(v0,
 		v1[X] / v2[X],
 		v1[Y] / v2[Y],
@@ -48,7 +33,7 @@ export function div(v0, v1, v2) {
 	);
 }
 
-export function dot(v1, v2) {
+function dot(v1, v2) {
 	return (
 		(v1[X] * v2[X]) +
 		(v1[Y] * v2[Y]) +
@@ -57,7 +42,7 @@ export function dot(v1, v2) {
 	);
 }
 
-export function equal(v1, v2) {
+function equal(v1, v2) {
 	return (
 		Scalar.equal(v1[X], v2[X]) &&
 		Scalar.equal(v1[Y], v2[Y]) &&
@@ -66,22 +51,22 @@ export function equal(v1, v2) {
 	);
 }
 
-export function length(v1) {
+function length(v1) {
 	return Math.sqrt(dot(v1, v1));
 }
 
-export function lengthSquared(v1) {
+function lengthSquared(v1) {
 	return dot(v1, v1);
 }
 
-export function load(v0, x, y, z, w) {
+function load(v0, x, y, z, w) {
 	v0[X] = x;
 	v0[Y] = y;
 	v0[Z] = z;
 	v0[W] = w;
 }
 
-export function mod(v0, v1, v2) {
+function mod(v0, v1, v2) {
 	load(v0,
 		v1[X] % v2[X],
 		v1[Y] % v2[Y],
@@ -90,7 +75,7 @@ export function mod(v0, v1, v2) {
 	);
 }
 
-export function mul(v0, v1, v2) {
+function mul(v0, v1, v2) {
 	load(v0,
 		v1[X] * v2[X],
 		v1[Y] * v2[Y],
@@ -99,7 +84,7 @@ export function mul(v0, v1, v2) {
 	);
 }
 
-export function mulAdd(v0, v1, v2, v3) {
+function mulAdd(v0, v1, v2, v3) {
 	load(v0,
 		v1[X] * v2[X] + v3[X],
 		v1[Y] * v2[Y] + v3[Y],
@@ -108,11 +93,11 @@ export function mulAdd(v0, v1, v2, v3) {
 	);
 }
 
-export function neg(v0, v1) {
+function neg(v0, v1) {
 	load(v0, -v1[X], -v1[Y], -v1[Z], -v1[W]);
 }
 
-export function normalize(v0, v1) {
+function normalize(v0, v1) {
 	let r2 = length(v1);
 	if (r2 > 0.0) r2 = 1.0 / r2;
 	load(v0,
@@ -123,7 +108,7 @@ export function normalize(v0, v1) {
 	);
 }
 
-export function notEqual(v1, v2) {
+function notEqual(v1, v2) {
 	return (
 		!Scalar.equal(v1[X], v2[X]) ||
 		!Scalar.equal(v1[Y], v2[Y]) ||
@@ -132,11 +117,11 @@ export function notEqual(v1, v2) {
 	);
 }
 
-export function rep(v0, r1) {
+function rep(v0, r1) {
 	load(v0, r1, r1, r1, r1);
 }
 
-export function sub(v0, v1, v2) {
+function sub(v0, v1, v2) {
 	load(v0,
 		v1[X] - v2[X],
 		v1[Y] - v2[Y],
@@ -145,11 +130,11 @@ export function sub(v0, v1, v2) {
 	);
 }
 
-export function swizzle(v0, v1, x, y, z, w) {
+function swizzle(v0, v1, x, y, z, w) {
 	load(v0, v1[x], v1[y], v1[z], v1[w]);
 }
 
-export function transform(v0, v1, m2) {
+function transform(v0, v1, m2) {
 	load(v0,
 		(v1[X] * m2[M11]) + (v1[Y] * m2[M21]) + (v1[Z] * m2[M31]) + (v1[W] * m2[M41]),
 		(v1[X] * m2[M12]) + (v1[Y] * m2[M22]) + (v1[Z] * m2[M32]) + (v1[W] * m2[M42]),
@@ -158,6 +143,30 @@ export function transform(v0, v1, m2) {
 	);
 }
 
-export function zero(v0) {
+function zero(v0) {
 	rep(v0, 0.0);
+}
+
+export {
+	COUNT,
+	X, Y, Z, W,
+	add,
+	create,
+	div,
+	dot,
+	equal,
+	length,
+	lengthSquared,
+	load,
+	mod,
+	mul,
+	mulAdd,
+	neg,
+	normalize,
+	notEqual,
+	rep,
+	sub,
+	swizzle,
+	transform,
+	zero
 }

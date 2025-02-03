@@ -4,34 +4,20 @@ GLSL における mat4 を表します。
 */
 
 import * as Vec3 from "./vec3.js";
-const X = 0;
-const Y = 1;
-const Z = 2;
-export const COUNT = 16;
-export const M11 = 0;
-export const M12 = 1;
-export const M13 = 2;
-export const M14 = 3;
-export const M21 = 4;
-export const M22 = 5;
-export const M23 = 6;
-export const M24 = 7;
-export const M31 = 8;
-export const M32 = 9;
-export const M33 = 10;
-export const M34 = 11;
-export const M41 = 12;
-export const M42 = 13;
-export const M43 = 14;
-export const M44 = 15;
+const COUNT = 16;
+const M11 = 0,  M12 = 1,  M13 = 2,  M14 = 3;
+const M21 = 4,  M22 = 5,  M23 = 6,  M24 = 7;
+const M31 = 8,  M32 = 9,  M33 = 10, M34 = 11;
+const M41 = 12, M42 = 13, M43 = 14, M44 = 15;
+const X = 0, Y = 1, Z = 2;
 
 /* 新しい行列を返します。 */
-export function create() {
+function create() {
 	return new Float32Array(COUNT);
 }
 
 /* 指定した行列に単位行列を設定します。 */
-export function identity(m0) {
+function identity(m0) {
 	load(m0,
 		1.0, 0.0, 0.0, 0.0,
 		0.0, 1.0, 0.0, 0.0,
@@ -41,7 +27,7 @@ export function identity(m0) {
 }
 
 /* 指定した行列に値を設定します。 */
-export function load(m0, r11, r12, r13, r14, r21, r22, r23, r24, r31, r32, r33, r34, r41, r42, r43, r44) {
+function load(m0, r11, r12, r13, r14, r21, r22, r23, r24, r31, r32, r33, r34, r41, r42, r43, r44) {
 	m0[M11] = r11; m0[M12] = r12; m0[M13] = r13; m0[M14] = r14;
 	m0[M21] = r21; m0[M22] = r22; m0[M23] = r23; m0[M24] = r24;
 	m0[M31] = r31; m0[M32] = r32; m0[M33] = r33; m0[M34] = r34;
@@ -49,12 +35,12 @@ export function load(m0, r11, r12, r13, r14, r21, r22, r23, r24, r31, r32, r33, 
 }
 
 /* ビュー変換行列を作成します。X1, Y1, Z1; 視点位置。X2, Y2, Z2; 注視位置。X3, Y3, Z3; 上方向。 */
-export function lookAt(m0, x1, y1, z1, x2, y2, z2, x3, y3, z3) {
+function lookAt(m0, x1, y1, z1, x2, y2, z2, x3, y3, z3) {
 	lookTo(m0, x1, y1, z1, x2 - x1, y2 - y1, z2 - z1, x3, y3, z3);
 }
 
 /* ビュー変換行列を作成します。X1, Y1, Z1; 視点位置。X2, Y2, Z2; 視線方向。X3, Y3, Z3; 上方向。 */
-export function lookTo(m0, x1, y1, z1, x2, y2, z2, x3, y3, z3) {
+function lookTo(m0, x1, y1, z1, x2, y2, z2, x3, y3, z3) {
 	const v0 = Vec3.create();
 	const v1 = Vec3.create();
 	const v2 = Vec3.create();
@@ -77,7 +63,7 @@ export function lookTo(m0, x1, y1, z1, x2, y2, z2, x3, y3, z3) {
 }
 
 /* 行列の積。 */
-export function mul(m0, m1, m2) {
+function mul(m0, m1, m2) {
 	load(m0,
 		(m1[M11] * m2[M11]) + (m1[M12] * m2[M21]) + (m1[M13] * m2[M31]) + (m1[M14] * m2 [M41]),
 		(m1[M11] * m2[M12]) + (m1[M12] * m2[M22]) + (m1[M13] * m2[M32]) + (m1[M14] * m2 [M42]),
@@ -99,7 +85,7 @@ export function mul(m0, m1, m2) {
 }
 
 /* 平行投影行列を作成します。 */
-export function orthographic(m0, width, height, nearZ = -1, farZ = 1) {
+function orthographic(m0, width, height, nearZ = -1, farZ = 1) {
 	const range = nearZ / (farZ - nearZ);
 	load(m0,
 		2.0 / width, 0.0,          0.0,            0.0,
@@ -110,7 +96,7 @@ export function orthographic(m0, width, height, nearZ = -1, farZ = 1) {
 }
 
 /* 透視変換行列を作成します。 */
-export function perspective(m0, fovAngleY, aspectRatio, nearZ, farZ) {
+function perspective(m0, fovAngleY, aspectRatio, nearZ, farZ) {
 	const cosFov = Math.cos(fovAngleY);
 	const sinFov = Math.sin(fovAngleY);
 	const range = 1 / (farZ - nearZ);
@@ -125,7 +111,7 @@ export function perspective(m0, fovAngleY, aspectRatio, nearZ, farZ) {
 }
 
 /* 回転行列を作成します。 */
-export function rotation(m0, x, y, z) {
+function rotation(m0, x, y, z) {
 	const cosX = Math.cos(x);
 	const sinX = Math.sin(x);
 	const cosY = Math.cos(y);
@@ -140,12 +126,12 @@ export function rotation(m0, x, y, z) {
 	);
 }
 
-export function rotationFromVector(m0, v1) {
+function rotationFromVector(m0, v1) {
 	rotation(m0, v1[X], v1[Y], v1[Z]);
 }
 
 /* 回転行列 X を作成します。 */
-export function rotationX(m0, x) {
+function rotationX(m0, x) {
 	const cosX = Math.cos(x);
 	const sinX = Math.sin(x);
 	load(m0,
@@ -157,7 +143,7 @@ export function rotationX(m0, x) {
 }
 
 /* 回転行列 Y を作成します。 */
-export function rotationY(m0, y) {
+function rotationY(m0, y) {
 	const cosY = Math.cos(y);
 	const sinY = Math.sin(y);
 	load(m0,
@@ -169,7 +155,7 @@ export function rotationY(m0, y) {
 }
 
 /* 回転行列 Z を作成します。 */
-export function rotationZ(m0, z) {
+function rotationZ(m0, z) {
 	const cosZ = Math.cos(z);
 	const sinZ = Math.sin(z);
 	load(m0,
@@ -181,7 +167,7 @@ export function rotationZ(m0, z) {
 }
 
 /* 拡大変換行列を作成します。 */
-export function scaling(m0, x, y, z = 1) {
+function scaling(m0, x, y, z = 1) {
 	load(m0,
 		x,   0.0, 0.0, 0.0,
 		0.0, y,   0.0, 0.0,
@@ -190,12 +176,12 @@ export function scaling(m0, x, y, z = 1) {
 	);
 }
 
-export function scalingFromVector(m0, v1) {
+function scalingFromVector(m0, v1) {
 	scaling(m0, v1[X], v1[Y], v1[Z]);
 }
 
 /* 平行移動行列を作成します。 */
-export function translation(m0, x, y, z = 0) {
+function translation(m0, x, y, z = 0) {
 	load(m0,
 		1.0, 0.0, 0.0, 0.0,
 		0.0, 1.0, 0.0, 0.0,
@@ -204,12 +190,12 @@ export function translation(m0, x, y, z = 0) {
 	);
 }
 
-export function translationFromVector(m0, v1) {
+function translationFromVector(m0, v1) {
 	translation(m0, v1[X], v1[Y], v1[Z]);
 }
 
 /* 転置行列を作成します。 */
-export function transpose(m0, m1) {
+function transpose(m0, m1) {
 	load(m0,
 		m1[M11], m1[M21], m1[M31], m1[M41],
 		m1[M12], m1[M22], m1[M32], m1[M42],
@@ -217,3 +203,29 @@ export function transpose(m0, m1) {
 		m1[M14], m1[M24], m1[M34], m1[M44]
 	);
 }
+
+export {
+	COUNT,
+	M11, M12, M13, M14,
+	M21, M22, M23, M24,
+	M31, M32, M33, M34,
+	M41, M42, M43, M44,
+	create,
+	identity,
+	load,
+	lookAt,
+	lookTo,
+	mul,
+	orthographic,
+	perspective,
+	rotation,
+	rotationFromVector,
+	rotationX,
+	rotationY,
+	rotationZ,
+	scaling,
+	scalingFromVector,
+	translation,
+	translationFromVector,
+	transpose
+};
