@@ -85,6 +85,10 @@ function createTexture(url) {
 	return texture;
 }
 
+function getContext() {
+	return gl;
+}
+
 function setContext(context) {
 	gl = context;
 }
@@ -94,5 +98,6 @@ export {
 	createProgram,
 	createShader,
 	createTexture,
+	getContext,
 	setContext
 };
